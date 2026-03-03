@@ -24,8 +24,18 @@ export default function App() {
     <main className="page">
       <header className="page-header">
         <h1>Box Office Model Dashboard</h1>
-        <p>Baseline model quality and backtest diagnostics</p>
+        <p>Predicting movie revenue from opening weekend data</p>
       </header>
+
+      <section className="overview-section">
+        <h2>How to read this dashboard</h2>
+        <ol className="overview-steps">
+          <li><strong>What we're predicting:</strong> Given opening weekend numbers, we predict how much a movie will ultimately make domestically and worldwide.</li>
+          <li><strong>How we measure accuracy:</strong> <dfn title="Mean Absolute Error — on average, how far off our predictions are in dollars or units">MAE</dfn> = average prediction error. <dfn title="Mean Absolute Percentage Error — on average, how far off we are as a % of the actual value">MAPE</dfn> = average % error. Lower = better.</li>
+          <li><strong>In-sample vs backtest:</strong> In-sample = how well we fit known data. Backtest = train on older movies, test on newer ones (closer to real-world use).</li>
+        </ol>
+      </section>
+
       {error ? <div className="error">{error}</div> : null}
       {!error && !report ? <div className="loading">Loading report...</div> : null}
       {report ? <MetricsDashboard report={report} /> : null}

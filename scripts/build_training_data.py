@@ -17,6 +17,7 @@ def parse_args():
     p.add_argument("--years", type=int, default=3, help="How many years back from today")
     p.add_argument("--sleep", type=float, default=0.25, help="Seconds between movie page requests")
     p.add_argument("--use-playwright", action="store_true", help="Use Playwright fallback for dynamic/blocked pages")
+    p.add_argument("--all-studios", action="store_true", help="Include all studios; default is US distributors only")
     return p.parse_args()
 
 
@@ -41,7 +42,7 @@ def main() -> int:
     init_schema(conn)
     upsert_movies(conn, movies)
     upsert_daily(conn, daily_rows)
-    training_count = rebuild_training_examples(conn, as_of_day=7)
+    training_count = rebuild_training_examples(conn, as_of_day=7, us_only=not args.all_studios)
 
     print(f"Seed movies: {len(movies)}")
     print(f"Daily rows: {len(daily_rows)}")

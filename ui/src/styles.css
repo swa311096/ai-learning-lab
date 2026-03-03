@@ -33,6 +33,68 @@ body {
   color: var(--muted);
 }
 
+.overview-section {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.overview-section h2 {
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.overview-steps {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.overview-steps li {
+  margin-bottom: 8px;
+}
+
+.overview-steps dfn {
+  cursor: help;
+  border-bottom: 1px dotted var(--muted);
+}
+
+.section-header {
+  margin: 24px 0 12px 0;
+  font-size: 1rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.section-desc {
+  margin: -4px 0 12px 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.formula-note {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
+.detail-link {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #1f6feb;
+  text-decoration: none;
+}
+
+.detail-link:hover {
+  text-decoration: underline;
+}
+
 .dashboard-grid {
   margin-top: 18px;
   display: grid;
@@ -66,6 +128,13 @@ body {
   color: var(--muted);
   margin-top: 4px;
   font-size: 0.82rem;
+}
+
+.stat-desc {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.35;
 }
 
 .chart-card {

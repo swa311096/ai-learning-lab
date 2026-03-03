@@ -1,8 +1,53 @@
 import datetime as dt
 import sqlite3
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 from .extract import DailyGrossPoint, MovieSeed
+
+# US-based studios/distributors (case-insensitive substring match).
+# Box Office Mojo uses distributor names; this filters to Hollywood/US releases.
+US_STUDIO_SUBSTRINGS: Set[str] = {
+    "disney",
+    "universal",
+    "warner",
+    "paramount",
+    "sony",
+    "columbia",
+    "lionsgate",
+    "mgm",
+    "20th century",
+    "fox ",
+    "dreamworks",
+    "focus features",
+    "a24",
+    "amazon",
+    "netflix",
+    "neon",
+    "searchlight",
+    "orion",
+    "new line",
+    "blumhouse",
+    "touchstone",
+    "roadside",
+    "bleecker",
+    "magnolia",
+    "vertical",
+    "gravitas",
+    "stx",
+    "saban",
+    "entertainment studios",
+    "briarcliff",
+    "broad green",
+    "annapurna",
+    "legendary",
+}
+
+
+def _is_us_studio(studio: Optional[str]) -> bool:
+    if not studio or not studio.strip():
+        return False
+    s = studio.lower().strip()
+    return any(sub in s for sub in US_STUDIO_SUBSTRINGS)
 
 
 def upsert_movies(conn: sqlite3.Connection, movies: List[MovieSeed]) -> None:
@@ -78,6 +123,24 @@ def upsert_daily(conn: sqlite3.Connection, rows: List[DailyGrossPoint]) -> None:
     conn.commit()
 
 
+def _opening_weekend_from_dailies(dailies: list) -> Optional[float]:
+    """Sum first Fri+Sat+Sun from daily gross. Returns None if not found."""
+    by_date: Dict[dt.date, float] = {}
+    for row in dailies:
+        d_raw, _, gross = row[0], row[1], row[2]
+        if gross is None:
+            continue
+        d = d_raw if isinstance(d_raw, dt.date) else dt.date.fromisoformat(str(d_raw))
+        by_date[d] = float(gross)
+    for d in sorted(by_date.keys()):
+        if d.weekday() == 4:  # Friday
+            sat = d + dt.timedelta(days=1)
+            sun = d + dt.timedelta(days=2)
+            if sat in by_date and sun in by_date:
+                return by_date[d] + by_date[sat] + by_date[sun]
+    return None
+
+
 def _holiday_flag(release_date: Optional[dt.date]) -> int:
     if not release_date:
         return 0
@@ -91,13 +154,17 @@ def _holiday_flag(release_date: Optional[dt.date]) -> int:
     return 0
 
 
-def rebuild_training_examples(conn: sqlite3.Connection, as_of_day: int = 7) -> int:
+def rebuild_training_examples(
+    conn: sqlite3.Connection,
+    as_of_day: int = 7,
+    us_only: bool = True,
+) -> int:
     cur = conn.cursor()
     cur.execute("DELETE FROM training_examples")
 
     movies = cur.execute(
         """
-        SELECT movie_id, title, release_date, opening_weekend_numbers_usd,
+        SELECT movie_id, title, studio, release_date, opening_weekend_numbers_usd,
                domestic_numbers_usd, worldwide_numbers_usd
         FROM movies_raw
         """
@@ -106,7 +173,9 @@ def rebuild_training_examples(conn: sqlite3.Connection, as_of_day: int = 7) -> i
     now = dt.datetime.utcnow().isoformat()
     inserted = 0
 
-    for movie_id, title, release_date_raw, opening_weekend, domestic_total, worldwide_total in movies:
+    for movie_id, title, studio, release_date_raw, opening_weekend, domestic_total, worldwide_total in movies:
+        if us_only and not _is_us_studio(studio):
+            continue
 
         dailies = cur.execute(
             """
@@ -130,9 +199,11 @@ def rebuild_training_examples(conn: sqlite3.Connection, as_of_day: int = 7) -> i
             continue
 
         if not opening_weekend:
-            first3 = [v for v in gross_values[:3] if v is not None]
-            if len(first3) == 3:
-                opening_weekend = sum(first3)
+            opening_weekend = _opening_weekend_from_dailies(dailies)
+            if not opening_weekend:
+                first3 = [v for v in gross_values[:3] if v is not None]
+                if len(first3) == 3:
+                    opening_weekend = sum(first3)
 
         if not domestic_total:
             last_total = dailies[-1][5]

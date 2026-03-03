@@ -174,9 +174,16 @@ def main() -> int:
                     "actual": float(r.domestic_multiplier),
                     "predicted": float(r.pred_domestic_multiplier),
                     "abs_pct_error": float(r.abs_pct_error * 100.0),
+                    "opening_weekend_usd": float(r.opening_weekend_usd) if pd.notna(r.opening_weekend_usd) else None,
+                    "domestic_total_usd": float(r.domestic_total_usd) if pd.notna(r.domestic_total_usd) else None,
+                    "day3_total_usd": float(r.day3_total_usd) if pd.notna(r.day3_total_usd) else None,
+                    "day7_total_usd": float(r.day7_total_usd) if pd.notna(r.day7_total_usd) else None,
                 }
                 for r in worst.itertuples(index=False)
             ]
+            summary["models"]["domestic_multiplier"]["multiplier_formula"] = (
+                "Multiplier = Total domestic ÷ Opening weekend (Fri+Sat+Sun)"
+            )
 
     if model_ratio_path.exists():
         model_ratio = load_model(str(model_ratio_path))

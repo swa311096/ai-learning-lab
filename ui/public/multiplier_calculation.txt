@@ -1,0 +1,43 @@
+================================================================================
+DOMESTIC MULTIPLIER = TOTAL DOMESTIC / OPENING WEEKEND
+================================================================================
+
+Weekend = first Fri+Sat+Sun | Total = final domestic box office
+
+================================================================================
+WORST PREDICTION ERRORS
+================================================================================
+
+  Waitress: The Musical  (2023-12-07)
+  Weekend (Fri-Sat-Sun):  $2,847,421
+  Total domestic:         $5,402,148
+  Multiplier:             1.90  (Total ÷ Weekend)
+  Model predicted:        8.24   Error: 335%
+
+
+  Interstellar 2024 Re-release  (2024-12-06)
+  Weekend (Fri-Sat-Sun):  $4,602,149
+  Total domestic:         $15,207,563
+  Multiplier:             3.30  (Total ÷ Weekend)
+  Model predicted:        7.77   Error: 135%
+
+
+  Kraven the Hunter  (2024-12-13)
+  Weekend (Fri-Sat-Sun):  $11,001,109
+  Total domestic:         $25,026,310
+  Multiplier:             2.27  (Total ÷ Weekend)
+  Model predicted:        4.47   Error: 96%
+
+
+  Merrily We Roll Along  (2025-12-05)
+  Weekend (Fri-Sat-Sun):  $1,308,947
+  Total domestic:         $2,508,329
+  Multiplier:             1.92  (Total ÷ Weekend)
+  Model predicted:        3.64   Error: 90%
+
+
+  Stray Kids: The dominATE Experience  (2026-02-06)
+  Weekend (Fri-Sat-Sun):  $5,710,133
+  Total domestic:         $7,232,818
+  Multiplier:             1.27  (Total ÷ Weekend)
+  Model predicted:        2.39   Error: 89%

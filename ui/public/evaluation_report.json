@@ -1,110 +1,131 @@
 {
   "rows": {
-    "training_examples_before_filters": 225,
-    "training_examples_after_filters": 180,
-    "with_domestic_multiplier": 180,
-    "with_intl_dom_ratio": 125
+    "training_examples_before_filters": 445,
+    "training_examples_after_filters": 361,
+    "with_domestic_multiplier": 361,
+    "with_intl_dom_ratio": 261
   },
   "models": {
     "domestic_multiplier": {
-      "count": 179,
-      "mae": 0.33473934706697955,
-      "rmse": 0.551569224595632,
-      "mape_pct": 13.873981553823441,
+      "count": 358,
+      "mae": 0.5398647413384761,
+      "rmse": 1.2440815936537415,
+      "mape_pct": 14.609285953503978,
       "worst_examples": [
         {
-          "title": "Jujutsu Kaisen: Hidden Inventory / Premature Death - The Movie",
-          "release_date": "2025-07-16",
-          "actual": 1.2092414002018022,
-          "predicted": 2.4362581950128384,
-          "abs_pct_error": 101.46996245797304
+          "title": "Waitress: The Musical",
+          "release_date": "2023-12-07",
+          "actual": 1.8972073325300334,
+          "predicted": 8.244743006493678,
+          "abs_pct_error": 334.57258809446233,
+          "opening_weekend_usd": 2847421.0,
+          "domestic_total_usd": 5402148.0,
+          "day3_total_usd": 2427082.0,
+          "day7_total_usd": 4346195.0
         },
         {
-          "title": "War 2",
-          "release_date": "2025-08-14",
-          "actual": 1.1762586693430084,
-          "predicted": 2.2887365783240847,
-          "abs_pct_error": 94.57765863714684
+          "title": "Interstellar 2024 Re-release",
+          "release_date": "2024-12-06",
+          "actual": 3.3044482045235823,
+          "predicted": 7.771385246498483,
+          "abs_pct_error": 135.17951456645454,
+          "opening_weekend_usd": 4602149.0,
+          "domestic_total_usd": 15207563.0,
+          "day3_total_usd": 4602149.0,
+          "day7_total_usd": 8466083.0
         },
         {
-          "title": "Sight & Sound Presents: NOAH Live",
-          "release_date": "2025-09-18",
-          "actual": 1.8942104662968466,
-          "predicted": 3.631517956864493,
-          "abs_pct_error": 91.71670843758227
+          "title": "Kraven the Hunter",
+          "release_date": "2024-12-13",
+          "actual": 2.2748897406616004,
+          "predicted": 4.467722322247864,
+          "abs_pct_error": 96.39291708918287,
+          "opening_weekend_usd": 11001109.0,
+          "domestic_total_usd": 25026310.0,
+          "day3_total_usd": 11001109.0,
+          "day7_total_usd": 14334701.0
         },
         {
-          "title": "KPop Demon Hunters",
-          "release_date": "2025-08-23",
-          "actual": 1.3064516129032258,
-          "predicted": 2.224420958220975,
-          "abs_pct_error": 70.26432025888944
+          "title": "Merrily We Roll Along",
+          "release_date": "2025-12-05",
+          "actual": 1.9162953121860549,
+          "predicted": 3.64224211971542,
+          "abs_pct_error": 90.06684912047581,
+          "opening_weekend_usd": 1308947.0,
+          "domestic_total_usd": 2508329.0,
+          "day3_total_usd": 1308947.0,
+          "day7_total_usd": 1990320.0
         },
         {
-          "title": "How the Grinch Stole Christmas 2025 Re-release",
-          "release_date": "2025-12-12",
-          "actual": 1.6041306692637156,
-          "predicted": 2.643444942681963,
-          "abs_pct_error": 64.78987611996004
+          "title": "Stray Kids: The dominATE Experience",
+          "release_date": "2026-02-06",
+          "actual": 1.2666636661527848,
+          "predicted": 2.3944975554665353,
+          "abs_pct_error": 89.03972849709193,
+          "opening_weekend_usd": 5710133.0,
+          "domestic_total_usd": 7232818.0,
+          "day3_total_usd": 5710133.0,
+          "day7_total_usd": 6783069.0
         }
-      ]
+      ],
+      "multiplier_formula": "Multiplier = Total domestic \u00f7 Opening weekend (Fri+Sat+Sun)"
     },
     "domestic_total_from_multiplier": {
-      "count": 179,
-      "mae": 5908559.714904518,
-      "rmse": 17499247.199421603,
-      "mape_pct": 13.87398155382344
+      "count": 358,
+      "mae": 10677714.226095945,
+      "rmse": 33813935.73847235,
+      "mape_pct": 14.609285953503978
     },
     "intl_dom_ratio": {
-      "count": 125,
-      "mae": 0.5222124273960638,
-      "rmse": 0.7547042262529392,
-      "mape_pct": 37.499056846300604
+      "count": 259,
+      "mae": 0.35154700803151756,
+      "rmse": 0.6169262334068621,
+      "mape_pct": 23.652306899683882
     },
     "combined_totals": {
       "domestic": {
-        "count": 125,
-        "mae": 6453235.648123022,
-        "rmse": 16895911.592730474,
-        "mape_pct": 11.804276983586524
+        "count": 259,
+        "mae": 9948162.515112575,
+        "rmse": 23534646.09390712,
+        "mape_pct": 12.479185437562764
       },
       "international": {
-        "count": 125,
-        "mae": 29743357.26034341,
-        "rmse": 70552500.35916366,
-        "mape_pct": 27573021.484572154
+        "count": 259,
+        "mae": 32725838.176735707,
+        "rmse": 85944236.26314747,
+        "mape_pct": 9417621.564636493
       },
       "worldwide": {
-        "count": 125,
-        "mae": 34275516.22691143,
-        "rmse": 82423045.6094471,
-        "mape_pct": 37.4001569637254
+        "count": 259,
+        "mae": 39648019.664679565,
+        "rmse": 97544493.108951,
+        "mape_pct": 23.589328631540578
       }
     }
   },
   "backtest": {
     "domestic_multiplier": {
-      "train_count": 143,
-      "test_count": 36,
-      "train_end_date": "2025-12-25",
-      "test_start_date": "2025-12-25",
+      "train_count": 286,
+      "test_count": 72,
+      "train_end_date": "2025-09-19",
+      "test_start_date": "2025-09-19",
       "metrics": {
-        "count": 36,
-        "mae": 0.6467279926675639,
-        "rmse": 0.8226408482456362,
-        "mape_pct": 30.895945633456822
+        "count": 72,
+        "mae": 0.9000645886301876,
+        "rmse": 1.2861752028989957,
+        "mape_pct": 33.38539149402338
       }
     },
     "intl_dom_ratio": {
-      "train_count": 100,
-      "test_count": 25,
-      "train_end_date": "2026-01-17",
-      "test_start_date": "2026-01-18",
+      "train_count": 207,
+      "test_count": 52,
+      "train_end_date": "2025-09-19",
+      "test_start_date": "2025-09-19",
       "metrics": {
-        "count": 25,
-        "mae": 1.7162117796601337,
-        "rmse": 2.247352915483843,
-        "mape_pct": 142.27289268287302
+        "count": 52,
+        "mae": 0.9692075458925478,
+        "rmse": 1.3089253423527243,
+        "mape_pct": 82.47104355623213
       }
     }
   },
@@ -112,63 +133,63 @@
     "domestic_total_monthly_mae": [
       {
         "month": 1,
-        "count": 16,
-        "mae": 1399322.8615859193
+        "count": 20,
+        "mae": 4548076.140964037
       },
       {
         "month": 2,
-        "count": 18,
-        "mae": 2725428.6935563274
+        "count": 32,
+        "mae": 4977017.60601989
       },
       {
         "month": 3,
-        "count": 17,
-        "mae": 1833405.8783168378
+        "count": 30,
+        "mae": 3572107.0887333723
       },
       {
         "month": 4,
-        "count": 14,
-        "mae": 2921596.7479901602
+        "count": 31,
+        "mae": 3386053.752189859
       },
       {
         "month": 5,
-        "count": 11,
-        "mae": 16729904.535681667
+        "count": 26,
+        "mae": 6471556.934084684
       },
       {
         "month": 6,
-        "count": 10,
-        "mae": 3636793.242292834
+        "count": 22,
+        "mae": 12505882.392428122
       },
       {
         "month": 7,
-        "count": 9,
-        "mae": 6930765.606328495
+        "count": 21,
+        "mae": 19605732.0705463
       },
       {
         "month": 8,
-        "count": 15,
-        "mae": 5795451.30153232
+        "count": 32,
+        "mae": 3253258.614735245
       },
       {
         "month": 9,
-        "count": 16,
-        "mae": 2744641.7798594646
+        "count": 30,
+        "mae": 5436987.41983386
       },
       {
         "month": 10,
-        "count": 17,
-        "mae": 2624507.918549489
+        "count": 26,
+        "mae": 3799794.3918193853
       },
       {
         "month": 11,
-        "count": 15,
-        "mae": 13543865.55655096
+        "count": 34,
+        "mae": 25510485.42758785
       },
       {
         "month": 12,
-        "count": 21,
-        "mae": 12034315.407549832
+        "count": 54,
+        "mae": 23551655.636252165
       }
     ]
   },
