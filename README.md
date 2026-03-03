@@ -50,6 +50,8 @@ Outputs are stored in:
 
 ```bash
 python3 scripts/train_baseline_models.py
+# optional: disable outlier filters
+python3 scripts/train_baseline_models.py --no-filters
 ```
 
 Saved models:
@@ -60,6 +62,28 @@ Saved models:
 
 ```bash
 python3 scripts/evaluate_models.py
+# optional: write report directly for the dashboard
+python3 scripts/evaluate_models.py --output-json ui/public/evaluation_report.json
+```
+
+Evaluation report includes:
+- in-sample metrics on filtered rows,
+- chronological backtest metrics (time split),
+- chart-ready monthly MAE aggregates.
+
+## TSX metrics dashboard
+
+```bash
+cd ui
+npm install
+npm run dev
+```
+
+Dashboard reads: `ui/public/evaluation_report.json`.
+Refresh it after retraining by running:
+
+```bash
+python3 scripts/evaluate_models.py --output-json ui/public/evaluation_report.json
 ```
 
 ## What this project is for

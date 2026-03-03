@@ -4,6 +4,7 @@ import json
 import math
 import sys
 from pathlib import Path
+from typing import Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -11,7 +12,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from boxoffice.db import connect
-from boxoffice.train import FEATURE_COLUMNS, load_model
+from boxoffice.train import FEATURE_COLUMNS, apply_default_filters, build_pipeline, load_model
 
 
 def parse_args():
@@ -19,6 +20,9 @@ def parse_args():
     p.add_argument("--db", default="data/processed/boxoffice.sqlite")
     p.add_argument("--model-dir", default="data/models")
     p.add_argument("--top-errors", type=int, default=5)
+    p.add_argument("--no-filters", action="store_true", help="Disable default outlier filters for evaluation")
+    p.add_argument("--time-split", type=float, default=0.2, help="Fraction for chronological holdout (0-0.5)")
+    p.add_argument("--output-json", default="data/processed/evaluation_report.json")
     return p.parse_args()
 
 
@@ -34,7 +38,7 @@ def metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
 
 
 def fetch_eval_frame(conn) -> pd.DataFrame:
-    return pd.read_sql_query(
+    frame = pd.read_sql_query(
         """
         SELECT
             movie_id,
@@ -59,22 +63,75 @@ def fetch_eval_frame(conn) -> pd.DataFrame:
         """,
         conn,
     )
+    frame["release_date"] = pd.to_datetime(frame["release_date"], errors="coerce")
+    return frame
+
+
+def time_split_report(frame: pd.DataFrame, target: str, test_fraction: float) -> Optional[Dict[str, object]]:
+    target_frame = frame.dropna(subset=FEATURE_COLUMNS + [target, "release_date"]).copy()
+    if len(target_frame) < 40:
+        return None
+
+    target_frame = target_frame.sort_values("release_date")
+    split_idx = int(len(target_frame) * (1.0 - test_fraction))
+    split_idx = max(20, min(split_idx, len(target_frame) - 20))
+
+    train_df = target_frame.iloc[:split_idx]
+    test_df = target_frame.iloc[split_idx:]
+    if train_df.empty or test_df.empty:
+        return None
+
+    model = build_pipeline()
+    model.fit(train_df[FEATURE_COLUMNS], train_df[target].astype(float))
+    preds = model.predict(test_df[FEATURE_COLUMNS])
+
+    return {
+        "train_count": int(len(train_df)),
+        "test_count": int(len(test_df)),
+        "train_end_date": train_df["release_date"].max().date().isoformat(),
+        "test_start_date": test_df["release_date"].min().date().isoformat(),
+        "metrics": metrics(test_df[target].to_numpy(dtype=float), preds),
+    }
+
+
+def monthly_mae(frame: pd.DataFrame, actual_col: str, pred_col: str) -> list:
+    df = frame.dropna(subset=["release_month", actual_col, pred_col]).copy()
+    if df.empty:
+        return []
+    out = []
+    grouped = df.groupby("release_month")
+    for month, sub in sorted(grouped, key=lambda x: x[0]):
+        mae = float(np.mean(np.abs(sub[pred_col].to_numpy() - sub[actual_col].to_numpy())))
+        out.append({"month": int(month), "count": int(len(sub)), "mae": mae})
+    return out
+
+
+def save_report(path: str, payload: dict) -> None:
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
 def main() -> int:
     args = parse_args()
     conn = connect(args.db)
 
-    frame = fetch_eval_frame(conn)
+    raw_frame = fetch_eval_frame(conn)
+    frame = raw_frame if args.no_filters else apply_default_filters(raw_frame)
+
     summary = {
         "rows": {
-            "training_examples": int(len(frame)),
+            "training_examples_before_filters": int(len(raw_frame)),
+            "training_examples_after_filters": int(len(frame)),
             "with_domestic_multiplier": int(frame["domestic_multiplier"].notna().sum()),
             "with_intl_dom_ratio": int(frame["intl_dom_ratio"].notna().sum()),
         },
         "models": {},
+        "backtest": {},
+        "charts": {},
         "notes": [
-            "Metrics are computed on current table rows using saved models (not strict out-of-sample backtest)."
+            "in_sample metrics use saved models on current filtered table rows.",
+            "backtest metrics retrain models using chronological split.",
         ],
     }
 
@@ -83,7 +140,7 @@ def main() -> int:
 
     if model_multiplier_path.exists():
         model_multiplier = load_model(str(model_multiplier_path))
-        dom_df = frame.dropna(subset=["domestic_multiplier"]).copy()
+        dom_df = frame.dropna(subset=FEATURE_COLUMNS + ["domestic_multiplier"]).copy()
         if not dom_df.empty:
             dom_pred = model_multiplier.predict(dom_df[FEATURE_COLUMNS])
             summary["models"]["domestic_multiplier"] = metrics(
@@ -99,16 +156,21 @@ def main() -> int:
                     dom_total_df["domestic_total_usd"].to_numpy(dtype=float),
                     dom_total_df["pred_domestic_total"].to_numpy(dtype=float),
                 )
+                summary["charts"]["domestic_total_monthly_mae"] = monthly_mae(
+                    dom_total_df,
+                    actual_col="domestic_total_usd",
+                    pred_col="pred_domestic_total",
+                )
 
             dom_df["abs_pct_error"] = (
-                np.abs(dom_df["pred_domestic_multiplier"] - dom_df["domestic_multiplier"]) /
-                np.maximum(np.abs(dom_df["domestic_multiplier"]), 1.0)
+                np.abs(dom_df["pred_domestic_multiplier"] - dom_df["domestic_multiplier"])
+                / np.maximum(np.abs(dom_df["domestic_multiplier"]), 1.0)
             )
             worst = dom_df.sort_values("abs_pct_error", ascending=False).head(args.top_errors)
             summary["models"]["domestic_multiplier"]["worst_examples"] = [
                 {
                     "title": r.title,
-                    "release_date": r.release_date,
+                    "release_date": r.release_date.date().isoformat() if pd.notna(r.release_date) else None,
                     "actual": float(r.domestic_multiplier),
                     "predicted": float(r.pred_domestic_multiplier),
                     "abs_pct_error": float(r.abs_pct_error * 100.0),
@@ -118,7 +180,7 @@ def main() -> int:
 
     if model_ratio_path.exists():
         model_ratio = load_model(str(model_ratio_path))
-        ratio_df = frame.dropna(subset=["intl_dom_ratio"]).copy()
+        ratio_df = frame.dropna(subset=FEATURE_COLUMNS + ["intl_dom_ratio"]).copy()
         if not ratio_df.empty:
             ratio_pred = model_ratio.predict(ratio_df[FEATURE_COLUMNS])
             summary["models"]["intl_dom_ratio"] = metrics(
@@ -127,7 +189,7 @@ def main() -> int:
             )
 
     if model_multiplier_path.exists() and model_ratio_path.exists():
-        both = frame.dropna(subset=["opening_weekend_usd", "domestic_total_usd", "international_total_usd"]).copy()
+        both = frame.dropna(subset=FEATURE_COLUMNS + ["opening_weekend_usd", "domestic_total_usd", "international_total_usd"]).copy()
         if not both.empty:
             model_multiplier = load_model(str(model_multiplier_path))
             model_ratio = load_model(str(model_ratio_path))
@@ -151,7 +213,17 @@ def main() -> int:
                     ww["pred_worldwide"].to_numpy(dtype=float),
                 )
 
+    split = max(0.05, min(float(args.time_split), 0.5))
+    dom_backtest = time_split_report(frame, "domestic_multiplier", split)
+    ratio_backtest = time_split_report(frame, "intl_dom_ratio", split)
+    if dom_backtest:
+        summary["backtest"]["domestic_multiplier"] = dom_backtest
+    if ratio_backtest:
+        summary["backtest"]["intl_dom_ratio"] = ratio_backtest
+
+    save_report(args.output_json, summary)
     print(json.dumps(summary, indent=2))
+    print(f"Saved evaluation report to: {args.output_json}")
     return 0
 
 

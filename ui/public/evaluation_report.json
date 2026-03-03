@@ -1,0 +1,179 @@
+{
+  "rows": {
+    "training_examples_before_filters": 225,
+    "training_examples_after_filters": 180,
+    "with_domestic_multiplier": 180,
+    "with_intl_dom_ratio": 125
+  },
+  "models": {
+    "domestic_multiplier": {
+      "count": 179,
+      "mae": 0.33473934706697955,
+      "rmse": 0.551569224595632,
+      "mape_pct": 13.873981553823441,
+      "worst_examples": [
+        {
+          "title": "Jujutsu Kaisen: Hidden Inventory / Premature Death - The Movie",
+          "release_date": "2025-07-16",
+          "actual": 1.2092414002018022,
+          "predicted": 2.4362581950128384,
+          "abs_pct_error": 101.46996245797304
+        },
+        {
+          "title": "War 2",
+          "release_date": "2025-08-14",
+          "actual": 1.1762586693430084,
+          "predicted": 2.2887365783240847,
+          "abs_pct_error": 94.57765863714684
+        },
+        {
+          "title": "Sight & Sound Presents: NOAH Live",
+          "release_date": "2025-09-18",
+          "actual": 1.8942104662968466,
+          "predicted": 3.631517956864493,
+          "abs_pct_error": 91.71670843758227
+        },
+        {
+          "title": "KPop Demon Hunters",
+          "release_date": "2025-08-23",
+          "actual": 1.3064516129032258,
+          "predicted": 2.224420958220975,
+          "abs_pct_error": 70.26432025888944
+        },
+        {
+          "title": "How the Grinch Stole Christmas 2025 Re-release",
+          "release_date": "2025-12-12",
+          "actual": 1.6041306692637156,
+          "predicted": 2.643444942681963,
+          "abs_pct_error": 64.78987611996004
+        }
+      ]
+    },
+    "domestic_total_from_multiplier": {
+      "count": 179,
+      "mae": 5908559.714904518,
+      "rmse": 17499247.199421603,
+      "mape_pct": 13.87398155382344
+    },
+    "intl_dom_ratio": {
+      "count": 125,
+      "mae": 0.5222124273960638,
+      "rmse": 0.7547042262529392,
+      "mape_pct": 37.499056846300604
+    },
+    "combined_totals": {
+      "domestic": {
+        "count": 125,
+        "mae": 6453235.648123022,
+        "rmse": 16895911.592730474,
+        "mape_pct": 11.804276983586524
+      },
+      "international": {
+        "count": 125,
+        "mae": 29743357.26034341,
+        "rmse": 70552500.35916366,
+        "mape_pct": 27573021.484572154
+      },
+      "worldwide": {
+        "count": 125,
+        "mae": 34275516.22691143,
+        "rmse": 82423045.6094471,
+        "mape_pct": 37.4001569637254
+      }
+    }
+  },
+  "backtest": {
+    "domestic_multiplier": {
+      "train_count": 143,
+      "test_count": 36,
+      "train_end_date": "2025-12-25",
+      "test_start_date": "2025-12-25",
+      "metrics": {
+        "count": 36,
+        "mae": 0.6467279926675639,
+        "rmse": 0.8226408482456362,
+        "mape_pct": 30.895945633456822
+      }
+    },
+    "intl_dom_ratio": {
+      "train_count": 100,
+      "test_count": 25,
+      "train_end_date": "2026-01-17",
+      "test_start_date": "2026-01-18",
+      "metrics": {
+        "count": 25,
+        "mae": 1.7162117796601337,
+        "rmse": 2.247352915483843,
+        "mape_pct": 142.27289268287302
+      }
+    }
+  },
+  "charts": {
+    "domestic_total_monthly_mae": [
+      {
+        "month": 1,
+        "count": 16,
+        "mae": 1399322.8615859193
+      },
+      {
+        "month": 2,
+        "count": 18,
+        "mae": 2725428.6935563274
+      },
+      {
+        "month": 3,
+        "count": 17,
+        "mae": 1833405.8783168378
+      },
+      {
+        "month": 4,
+        "count": 14,
+        "mae": 2921596.7479901602
+      },
+      {
+        "month": 5,
+        "count": 11,
+        "mae": 16729904.535681667
+      },
+      {
+        "month": 6,
+        "count": 10,
+        "mae": 3636793.242292834
+      },
+      {
+        "month": 7,
+        "count": 9,
+        "mae": 6930765.606328495
+      },
+      {
+        "month": 8,
+        "count": 15,
+        "mae": 5795451.30153232
+      },
+      {
+        "month": 9,
+        "count": 16,
+        "mae": 2744641.7798594646
+      },
+      {
+        "month": 10,
+        "count": 17,
+        "mae": 2624507.918549489
+      },
+      {
+        "month": 11,
+        "count": 15,
+        "mae": 13543865.55655096
+      },
+      {
+        "month": 12,
+        "count": 21,
+        "mae": 12034315.407549832
+      }
+    ]
+  },
+  "notes": [
+    "in_sample metrics use saved models on current filtered table rows.",
+    "backtest metrics retrain models using chronological split."
+  ]
+}
