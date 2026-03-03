@@ -107,8 +107,6 @@ def rebuild_training_examples(conn: sqlite3.Connection, as_of_day: int = 7) -> i
     inserted = 0
 
     for movie_id, title, release_date_raw, opening_weekend, domestic_total, worldwide_total in movies:
-        if not opening_weekend or not domestic_total:
-            continue
 
         dailies = cur.execute(
             """
@@ -131,6 +129,18 @@ def rebuild_training_examples(conn: sqlite3.Connection, as_of_day: int = 7) -> i
         if any(v is None for v in gross_values[:4]):
             continue
 
+        if not opening_weekend:
+            first3 = [v for v in gross_values[:3] if v is not None]
+            if len(first3) == 3:
+                opening_weekend = sum(first3)
+
+        if not domestic_total:
+            last_total = dailies[-1][5]
+            domestic_total = last_total if last_total else None
+
+        if not opening_weekend or not domestic_total:
+            continue
+
         day3_total = sum(v for v in gross_values[:3] if v)
         day7_total = sum(v for v in gross_values if v)
 
@@ -147,10 +157,10 @@ def rebuild_training_examples(conn: sqlite3.Connection, as_of_day: int = 7) -> i
         theaters_day1 = first[0][4]
         theaters_day7 = first[-1][4]
 
-        worldwide = worldwide_total or 0.0
-        international_total = max(worldwide - domestic_total, 0.0)
+        worldwide = worldwide_total or None
+        international_total = max((worldwide - domestic_total), 0.0) if worldwide else None
         domestic_multiplier = domestic_total / opening_weekend if opening_weekend else None
-        intl_dom_ratio = international_total / domestic_total if domestic_total else None
+        intl_dom_ratio = (international_total / domestic_total) if (international_total is not None and domestic_total) else None
 
         release_date = dt.date.fromisoformat(release_date_raw) if release_date_raw else None
 

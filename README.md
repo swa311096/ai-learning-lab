@@ -24,11 +24,11 @@ Expected example output:
 {"title":"Example Movie","budget":10000000,"predicted_profitable":false,"probability":0.18}
 ```
 
-## V1 data + model pipeline (Universal bootstrap)
+## V1 data + model pipeline (market-wide bootstrap)
 
 This repository now includes a first-pass historical pipeline designed to:
-- pull released Universal titles from The Numbers within a date window,
-- crawl each movie's daily domestic table,
+- pull released movies (all studios) from Box Office Mojo year charts within a date window,
+- crawl each movie's domestic daily table,
 - build a training table with early-run features,
 - train two baseline regressors:
   - domestic multiplier (`final_domestic / opening_weekend`)
@@ -37,6 +37,7 @@ This repository now includes a first-pass historical pipeline designed to:
 ### Build training data
 
 ```bash
+playwright install chromium
 python3 scripts/build_training_data.py --years 3
 ```
 

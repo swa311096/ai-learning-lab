@@ -1,19 +1,18 @@
 import datetime as dt
 import hashlib
+import re
 import time
-from urllib.parse import urldefrag
 from dataclasses import dataclass
-from typing import Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from bs4.element import Tag
 
-from .utils import parse_date, parse_money, parse_percent
+from .utils import parse_money, parse_percent
 
 
-BASE_URL = "https://www.the-numbers.com"
-UNIVERSAL_URL = f"{BASE_URL}/movies/production-company/Universal-Pictures"
+BOM_BASE_URL = "https://www.boxofficemojo.com"
 
 
 @dataclass
@@ -43,9 +42,11 @@ class DailyGrossPoint:
 
 
 class NumbersClient:
+    """V1 extractor that seeds from Box Office Mojo year pages and parses daily domestic rows."""
+
     def __init__(self, timeout_s: int = 30, use_playwright: bool = False):
         self._session = requests.Session()
-        self._session.headers.update({"User-Agent": "wtmmm/0.1"})
+        self._session.headers.update({"User-Agent": "Mozilla/5.0"})
         self.timeout_s = timeout_s
         self.use_playwright = use_playwright
 
@@ -56,7 +57,7 @@ class NumbersClient:
 
     def _get_page(self, url: str) -> str:
         html = self._get(url)
-        if self.use_playwright and ("<title></title>" in html or "Access denied" in html[:600]):
+        if self.use_playwright and ("Access denied" in html[:800] or "<title></title>" in html):
             rendered = self._get_playwright(url)
             if rendered:
                 return rendered
@@ -77,101 +78,130 @@ class NumbersClient:
             return html
 
     @staticmethod
-    def _extract_daily_table(soup: BeautifulSoup):
-        for table in soup.find_all("table"):
-            headers = [th.get_text(" ", strip=True) for th in table.find_all("th")]
-            header_set = set(headers)
-            if {"Date", "Gross", "Total Gross"}.issubset(header_set):
-                return table
-        return None
-
-    def _find_daily_table_and_link(self, soup: BeautifulSoup) -> Tuple[Optional[Tag], Optional[str]]:
-        target = self._extract_daily_table(soup)
-        domestic_link = None
-        if target is None:
-            for a in soup.find_all("a"):
-                text = a.get_text(" ", strip=True).lower()
-                href = a.get("href") or ""
-                if "domestic performance" in text and href:
-                    domestic_link = href if href.startswith("http") else f"{BASE_URL}{href}"
-                    break
-        return target, domestic_link
-
-    @staticmethod
     def _movie_id(title: str, release_date: Optional[dt.date]) -> str:
         basis = f"{title}|{release_date.isoformat() if release_date else 'na'}"
         return hashlib.sha1(basis.encode("utf-8")).hexdigest()[:16]
 
-    def fetch_universal_titles(self, start_date: dt.date, end_date: dt.date) -> List[MovieSeed]:
-        html = self._get_page(UNIVERSAL_URL)
+    @staticmethod
+    def _normalize_title(title: str) -> str:
+        t = (title or "").lower().strip()
+        t = re.sub(r"[^a-z0-9]+", " ", t)
+        return re.sub(r"\s+", " ", t).strip()
+
+    @staticmethod
+    def _parse_month_day_with_year(text: str, year: int) -> Optional[dt.date]:
+        text = (text or "").strip()
+        m = re.match(r"^([A-Za-z]{3,9})\s+(\d{1,2})", text)
+        if not m:
+            return None
+        month_txt, day_txt = m.group(1), m.group(2)
+        for fmt in ("%b %d %Y", "%B %d %Y"):
+            try:
+                return dt.datetime.strptime(f"{month_txt} {day_txt} {year}", fmt).date()
+            except ValueError:
+                continue
+        return None
+
+    def _fetch_world_totals(self, year: int) -> Dict[str, float]:
+        url = f"{BOM_BASE_URL}/year/world/{year}/"
+        html = self._get_page(url)
+        soup = BeautifulSoup(html, "html.parser")
+        table = soup.find("table")
+        if not table:
+            return {}
+
+        out: Dict[str, float] = {}
+        for tr in table.find_all("tr"):
+            tds = tr.find_all("td")
+            if len(tds) < 4:
+                continue
+            title = tds[1].get_text(" ", strip=True)
+            worldwide = parse_money(tds[2].get_text(" ", strip=True))
+            if title and worldwide is not None:
+                out[self._normalize_title(title)] = float(worldwide)
+        return out
+
+    def fetch_market_titles(self, start_date: dt.date, end_date: dt.date) -> List[MovieSeed]:
+        seeds: Dict[str, MovieSeed] = {}
+
+        for year in range(start_date.year, end_date.year + 1):
+            world_map = self._fetch_world_totals(year)
+            year_url = f"{BOM_BASE_URL}/year/{year}/"
+            html = self._get_page(year_url)
+            soup = BeautifulSoup(html, "html.parser")
+            table = soup.find("table")
+            if not table:
+                continue
+
+            for tr in table.find_all("tr"):
+                tds = tr.find_all("td")
+                if len(tds) < 10:
+                    continue
+
+                release_anchor = tds[1].find("a", href=True)
+                if not release_anchor:
+                    continue
+
+                title = tds[1].get_text(" ", strip=True)
+                if not title:
+                    continue
+
+                release_date = self._parse_month_day_with_year(tds[8].get_text(" ", strip=True), year)
+                if not release_date or release_date < start_date or release_date > end_date:
+                    continue
+
+                release_url = urljoin(BOM_BASE_URL, release_anchor["href"].split("?")[0])
+                studio = tds[9].get_text(" ", strip=True) or "Unknown"
+                domestic_total = parse_money(tds[7].get_text(" ", strip=True))
+                worldwide_total = world_map.get(self._normalize_title(title))
+
+                movie_id = self._movie_id(title, release_date)
+                seeds[movie_id] = MovieSeed(
+                    movie_id=movie_id,
+                    title=title,
+                    studio=studio,
+                    release_date=release_date,
+                    numbers_url=release_url,
+                    budget_numbers_usd=parse_money(tds[3].get_text(" ", strip=True)),
+                    opening_weekend_numbers_usd=None,
+                    domestic_numbers_usd=domestic_total,
+                    worldwide_numbers_usd=worldwide_total,
+                )
+
+        return sorted(seeds.values(), key=lambda m: (m.release_date or dt.date.min, m.title))
+
+    def _parse_daily_date(self, text: str, release_date: dt.date) -> Optional[dt.date]:
+        m = re.match(r"^([A-Za-z]{3,9})\s+(\d{1,2})", (text or "").strip())
+        if not m:
+            return None
+        month_txt, day_txt = m.group(1), m.group(2)
+
+        candidates: List[dt.date] = []
+        for year in [release_date.year - 1, release_date.year, release_date.year + 1]:
+            for fmt in ("%b %d %Y", "%B %d %Y"):
+                try:
+                    candidates.append(dt.datetime.strptime(f"{month_txt} {day_txt} {year}", fmt).date())
+                except ValueError:
+                    continue
+
+        if not candidates:
+            return None
+
+        return min(candidates, key=lambda d: abs((d - release_date).days))
+
+    def fetch_daily_domestic(self, movie: MovieSeed) -> List[DailyGrossPoint]:
+        if not movie.release_date:
+            return []
+
+        html = self._get_page(movie.numbers_url)
         soup = BeautifulSoup(html, "html.parser")
 
         target = None
         for table in soup.find_all("table"):
             headers = [th.get_text(" ", strip=True) for th in table.find_all("th")]
-            if "Release Date" in headers and "Worldwide Box Office" in headers:
+            if {"Date", "DOW", "Daily", "To Date", "Day"}.issubset(set(headers)):
                 target = table
                 break
-
-        if target is None:
-            raise RuntimeError("Could not find Universal table on The Numbers page")
-
-        output: List[MovieSeed] = []
-        for tr in target.find_all("tr"):
-            tds = tr.find_all("td")
-            if len(tds) < 6:
-                continue
-
-            release_date = parse_date(tds[0].get_text(" ", strip=True))
-            if not release_date:
-                continue
-            if release_date < start_date or release_date > end_date:
-                continue
-
-            title_cell = tds[1]
-            title = title_cell.get_text(" ", strip=True)
-            if title.lower().startswith("untitled"):
-                continue
-
-            anchor = title_cell.find("a")
-            if not anchor or not anchor.get("href"):
-                continue
-
-            numbers_url = f"{BASE_URL}{anchor['href']}"
-            movie_id = self._movie_id(title, release_date)
-
-            output.append(
-                MovieSeed(
-                    movie_id=movie_id,
-                    title=title,
-                    studio="Universal Pictures",
-                    release_date=release_date,
-                    numbers_url=numbers_url,
-                    budget_numbers_usd=parse_money(tds[2].get_text(" ", strip=True)),
-                    opening_weekend_numbers_usd=parse_money(tds[3].get_text(" ", strip=True)),
-                    domestic_numbers_usd=parse_money(tds[4].get_text(" ", strip=True)),
-                    worldwide_numbers_usd=parse_money(tds[5].get_text(" ", strip=True)),
-                )
-            )
-
-        return output
-
-    def fetch_daily_domestic(self, movie: MovieSeed) -> List[DailyGrossPoint]:
-        base_url, _ = urldefrag(movie.numbers_url)
-        html = self._get_page(base_url)
-        soup = BeautifulSoup(html, "html.parser")
-
-        target, domestic_link = self._find_daily_table_and_link(soup)
-        if target is None and domestic_link:
-            detail_html = self._get_page(domestic_link)
-            detail_soup = BeautifulSoup(detail_html, "html.parser")
-            target = self._extract_daily_table(detail_soup)
-
-        if target is None:
-            box_office_url = f"{base_url}#tab=box-office"
-            fallback_html = self._get_page(box_office_url)
-            fallback_soup = BeautifulSoup(fallback_html, "html.parser")
-            target = self._extract_daily_table(fallback_soup)
 
         if target is None:
             return []
@@ -179,34 +209,34 @@ class NumbersClient:
         rows: List[DailyGrossPoint] = []
         for tr in target.find_all("tr"):
             tds = tr.find_all("td")
-            if len(tds) < 8:
+            if len(tds) < 10:
                 continue
 
-            date_value = parse_date(tds[0].get_text(" ", strip=True))
-            if not date_value:
+            gross_date = self._parse_daily_date(tds[0].get_text(" ", strip=True), movie.release_date)
+            if not gross_date:
                 continue
 
-            day_number_raw = tds[7].get_text(" ", strip=True)
-            day_number = int(day_number_raw) if day_number_raw.isdigit() else None
+            day_raw = tds[9].get_text(" ", strip=True)
+            day_number = int(day_raw) if day_raw.isdigit() else None
 
-            theaters_txt = tds[4].get_text(" ", strip=True).replace(",", "")
+            theaters_txt = tds[6].get_text(" ", strip=True).replace(",", "")
             theaters = int(theaters_txt) if theaters_txt.isdigit() else None
 
             rows.append(
                 DailyGrossPoint(
                     movie_id=movie.movie_id,
-                    gross_date=date_value,
+                    gross_date=gross_date,
                     day_number=day_number,
-                    rank_text=tds[1].get_text(" ", strip=True),
-                    gross_usd=parse_money(tds[2].get_text(" ", strip=True)),
-                    percent_change=parse_percent(tds[3].get_text(" ", strip=True)),
+                    rank_text=tds[2].get_text(" ", strip=True),
+                    gross_usd=parse_money(tds[3].get_text(" ", strip=True)),
+                    percent_change=parse_percent(tds[4].get_text(" ", strip=True)),
                     theaters=theaters,
-                    per_theater_usd=parse_money(tds[5].get_text(" ", strip=True)),
-                    total_gross_usd=parse_money(tds[6].get_text(" ", strip=True)),
+                    per_theater_usd=parse_money(tds[7].get_text(" ", strip=True)),
+                    total_gross_usd=parse_money(tds[8].get_text(" ", strip=True)),
                 )
             )
 
-        rows.sort(key=lambda r: r.gross_date)
+        rows.sort(key=lambda r: ((r.day_number or 10_000), r.gross_date))
         return rows
 
     def fetch_daily_for_many(self, movies: Iterable[MovieSeed], sleep_s: float = 0.25) -> List[DailyGrossPoint]:

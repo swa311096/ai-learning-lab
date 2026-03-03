@@ -12,7 +12,7 @@ from boxoffice.transform import rebuild_training_examples, upsert_daily, upsert_
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Build training dataset from The Numbers")
+    p = argparse.ArgumentParser(description="Build training dataset from Box Office Mojo")
     p.add_argument("--db", default="data/processed/boxoffice.sqlite")
     p.add_argument("--years", type=int, default=3, help="How many years back from today")
     p.add_argument("--sleep", type=float, default=0.25, help="Seconds between movie page requests")
@@ -34,7 +34,7 @@ def main() -> int:
     start_date = subtract_years(today, args.years)
 
     client = NumbersClient(use_playwright=args.use_playwright)
-    movies = client.fetch_universal_titles(start_date=start_date, end_date=today)
+    movies = client.fetch_market_titles(start_date=start_date, end_date=today)
     daily_rows = client.fetch_daily_for_many(movies, sleep_s=args.sleep)
 
     conn = connect(args.db)

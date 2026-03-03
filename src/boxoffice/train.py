@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict
 
 import joblib
 import numpy as np
@@ -10,7 +10,6 @@ from sklearn.impute import SimpleImputer
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
 
 
 FEATURE_COLUMNS = [
@@ -62,15 +61,16 @@ def train_two_baselines(df: pd.DataFrame, model_dir: str) -> Dict[str, Dict[str,
     Path(model_dir).mkdir(parents=True, exist_ok=True)
 
     frame = df.copy()
-    frame = frame.dropna(subset=["domestic_multiplier", "intl_dom_ratio"], how="any")
-    if len(frame) < 20:
-        raise ValueError("Not enough rows to train reliably; need at least 20 complete examples")
 
     metrics: Dict[str, Dict[str, float]] = {}
 
     for target in ["domestic_multiplier", "intl_dom_ratio"]:
-        X = frame[FEATURE_COLUMNS]
-        y = frame[target].astype(float)
+        target_frame = frame.dropna(subset=[target]).copy()
+        if len(target_frame) < 20:
+            raise ValueError(f"Not enough rows to train {target}; need at least 20 examples")
+
+        X = target_frame[FEATURE_COLUMNS]
+        y = target_frame[target].astype(float)
 
         X_train, X_test, y_train, y_test = train_test_split(
             X,
