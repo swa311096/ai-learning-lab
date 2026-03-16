@@ -1,8 +1,8 @@
 # 05: Sequence Models and Attention
 
-Embeddings gave models a way to represent word meaning. But they still processed each word independently.
+Embeddings gave each word a meaningful representation. But they still processed each word in isolation.
 
-What happens when the meaning of a word depends on what came earlier in the sentence?
+What happens when meaning depends on what came earlier?
 
 ## Example: Why Sequence Matters
 
@@ -12,48 +12,127 @@ Consider:
 
 What does "it" refer to? The cat. Not the mat.
 
-A model that reads words in isolation has no way to connect "it" to "cat." It needs to carry information forward across the sentence.
+A model reading words in isolation has no way to connect "it" to "cat." It needs to carry information forward across the sentence.
 
 That is what sequence models were built to do.
 
-## Sequence Models
+## What "Recurrent" Means
 
-This is where RNNs, LSTMs, and GRUs became important.
+Sequence models are called **recurrent** because they loop — the output of one step feeds back as input to the next.
 
-These models process text one word at a time and maintain a running hidden state — a compressed summary of what came before. Each new word updates that state.
+At each step, the model takes two things:
 
-## What They Improved
+1. the current word's embedding
+2. the hidden state from the previous step
+
+And produces one thing:
+
+- a new hidden state
+
+```
+Step 1:  embed("The")  + h_0 (empty) → h_1
+Step 2:  embed("cat")  + h_1         → h_2
+Step 3:  embed("sat")  + h_2         → h_3
+...
+```
+
+The hidden state `h` is a fixed-size vector — a compressed summary of everything processed so far. Each new word updates it.
+
+This is what makes the model sequential: you cannot process step 3 until you have the output of step 2. The model must read words one at a time, in order.
+
+## RNNs and Their Problem
+
+The basic version of this architecture is called an **RNN** (Recurrent Neural Network).
+
+The problem: at each step, the new hidden state is computed from the current word and the previous hidden state — but the previous hidden state itself is already a compressed mixture of everything before it.
+
+As the sequence gets longer, earlier information gets overwritten. By step 50, the hidden state carries very little of what happened at step 1.
+
+There is also a deeper issue: training these models requires computing gradients backward through every step. In a long sequence, those gradients fade as they travel back through time — a problem called **vanishing gradients**. The model struggles to learn that something at step 1 is connected to something at step 40.
+
+## LSTMs: Solving the Forgetting Problem
+
+The **LSTM** (Long Short-Term Memory) was built to address this.
+
+Instead of a single hidden state that gets rewritten at every step, LSTMs maintain two separate pieces:
+
+- a **hidden state** (short-term memory, passed to the next step)
+- a **cell state** (long-term memory, carried forward with less modification)
+
+LSTMs also add gates — mechanisms that learn what to keep, what to forget, and what to expose:
+
+- **forget gate**: how much of the existing long-term memory to discard
+- **input gate**: how much new information to add to long-term memory
+- **output gate**: what to pass to the next step as short-term memory
+
+The result: LSTMs could maintain useful information across longer sequences than vanilla RNNs. They became the dominant architecture for sequence tasks through the 2010s.
+
+**GRUs** (Gated Recurrent Units) were a simpler variant with fewer gates that achieved similar results with less computation.
+
+## What Sequence Models Could Do
 
 Compared to count-based and embedding-only methods, sequence models handled:
 
-- translation
+- machine translation
 - text generation
 - speech recognition
-- sequence labeling tasks
+- named entity recognition and sequence labeling
 
-## The Main Limitation
+## The Encoder-Decoder Architecture
 
-Sequence models had two problems.
+One of the most important applications of sequence models was machine translation.
 
-The first was the hidden state. It is a fixed-size vector, regardless of how long the sequence is.
+The standard setup: an **encoder-decoder** architecture.
 
-For short sentences, this works. For longer ones, early information gets compressed and overwritten.
+The **encoder** reads the source sentence word by word and compresses the whole thing into a single vector — the final hidden state.
 
-Consider:
+The **decoder** takes that single vector and generates the target language sentence word by word.
 
-"The tourist who arrived from Spain, after a long flight through three different airports, finally reached the hotel where the ___ had been reserved."
+```
+Source: "The cat sat on the mat."
+         ↓ encoder reads all words
+         → one vector [compressed representation]
+         ↓ decoder reads that vector
+Output: "Le chat était assis sur le tapis."
+```
 
-By the time the model reaches "___", useful information about "tourist" may have been lost. The model struggles to maintain a reliable connection across that distance.
+This worked. But it had a hard limit: the entire source sentence had to fit into one fixed-size vector before decoding could begin.
 
-The second problem was training speed. Because these models process one word at a time in order, they cannot be parallelized easily. Training on large amounts of text was slow.
+For short sentences, fine. For longer ones, the encoder had to cram too much into a single vector. Information was lost before the decoder ever started.
 
-Both problems needed solving before language models could scale.
+Consider translating a 40-word sentence. The final encoder hidden state is trying to represent the meaning of all 40 words. Words near the beginning are compressed through 40 steps of updates. By the end, their contribution to the vector is minimal.
 
-## Attention
+## Attention: Letting the Decoder Look Back
 
-Attention was introduced to address this.
+Attention was introduced to solve the encoder bottleneck.
 
-Instead of depending only on the running hidden state, the model gets to look back at every earlier word and decide which ones are relevant right now.
+Instead of compressing the source sentence into one vector, the model keeps every encoder hidden state — one per source word.
+
+When the decoder generates each output word, it is allowed to look at all the encoder hidden states and decide which source words are most relevant right now.
+
+**How it computes this:**
+
+1. For each encoder hidden state, compute a **score**: how relevant is this source word to the current decoding step?
+2. Convert those scores to weights using softmax — they sum to 1.
+3. Take a weighted sum of the encoder hidden states. This is the **context vector** for this step.
+4. Use that context vector (instead of just the final encoder state) to predict the next output word.
+
+```
+Decoding step: generating "chat" (cat in French)
+
+Scores against source words:
+  "The"  → 0.02
+  "cat"  → 0.91   ← highest weight
+  "sat"  → 0.03
+  "on"   → 0.02
+  "the"  → 0.01
+  "mat"  → 0.01
+
+Context vector = weighted sum of encoder states
+               = mostly the encoder state for "cat"
+```
+
+The model learned to focus on "cat" when generating the French word for cat. Not because anyone told it to — because the weights were learned from training data.
 
 ## Example: Attention in Action
 
@@ -63,14 +142,20 @@ In the sentence:
 
 When the model reaches "it", it needs to decide whether "it" refers to "trophy" or "suitcase."
 
-With attention, the model can look back at both words and weight them. Because "large" connects more naturally to something that doesn't fit (the trophy, not the container), attention can learn to point "it" toward "trophy."
+Without attention, the model relies on its compressed hidden state — which may have lost the distinction between the two nouns across that many steps.
+
+With attention, the model computes a score for every earlier word. "Large" connects more naturally to something that does not fit (the trophy, not the container), so the model learns to weight "trophy" more heavily when resolving "it."
 
 A model relying only on a compressed hidden state is much more likely to get this wrong.
 
 ## Why Attention Mattered Beyond Sequence Models
 
-Attention did not just patch sequence models.
+Attention was originally added to patch the encoder-decoder bottleneck. But it revealed something deeper.
 
-It pointed toward a new idea: what if you removed the step-by-step processing entirely and built an architecture around attention from the start?
+The step-by-step processing of RNNs and LSTMs was not just slow — it was architecturally the wrong way to handle long-range relationships. The hidden state was a bottleneck by design.
+
+Attention gave any position in a sequence direct access to any other position. No compression. No sequential dependency.
+
+This pointed toward a new idea: what if you removed the recurrent structure entirely and built an architecture around attention from the start?
 
 That is where the next part begins.
