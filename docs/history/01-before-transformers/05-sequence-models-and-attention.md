@@ -1,67 +1,76 @@
 # 05: Sequence Models and Attention
 
-Once researchers had better word representations, the next challenge was handling language across time.
+Embeddings gave models a way to represent word meaning. But they still processed each word independently.
 
-Words do not appear independently. Meaning depends on sequence.
+What happens when the meaning of a word depends on what came earlier in the sentence?
 
-## Why Sequence Matters
+## Example: Why Sequence Matters
 
-These two sentences use the same words but mean different things:
+Consider:
 
-- "Dog bites man."
-- "Man bites dog."
+"The cat sat on the mat because it was tired."
 
-A good language system must care about order.
+What does "it" refer to? The cat. Not the mat.
+
+A model that reads words in isolation has no way to connect "it" to "cat." It needs to carry information forward across the sentence.
+
+That is what sequence models were built to do.
 
 ## Sequence Models
 
-This is where models like RNNs, LSTMs, and GRUs became important.
+This is where RNNs, LSTMs, and GRUs became important.
 
-They process text as a sequence and try to carry forward useful information from earlier tokens.
+These models process text one word at a time and maintain a running hidden state — a compressed summary of what came before. Each new word updates that state.
 
 ## What They Improved
 
-Compared with simpler earlier methods, sequence models improved:
+Compared to count-based and embedding-only methods, sequence models handled:
 
 - translation
 - text generation
 - speech recognition
 - sequence labeling tasks
 
-## Simple Example
-
-In this sentence:
-
-"The film started well, but by the end it felt empty."
-
-the meaning near the end depends on what came before.
-
-A sequence model tries to carry that earlier information forward as it processes the sentence.
-
 ## The Main Limitation
 
-Sequence models often struggled with long-range dependencies.
+Sequence models had two problems.
 
-As the sequence grew longer, important earlier information could fade or become hard to use.
+The first was the hidden state. It is a fixed-size vector, regardless of how long the sequence is.
 
-They were also harder to parallelize efficiently during training.
+For short sentences, this works. For longer ones, early information gets compressed and overwritten.
+
+Consider:
+
+"The tourist who arrived from Spain, after a long flight through three different airports, finally reached the hotel where the ___ had been reserved."
+
+By the time the model reaches "___", useful information about "tourist" may have been lost. The model struggles to maintain a reliable connection across that distance.
+
+The second problem was training speed. Because these models process one word at a time in order, they cannot be parallelized easily. Training on large amounts of text was slow.
+
+Both problems needed solving before language models could scale.
 
 ## Attention
 
-Attention was a major breakthrough because it let the model look back more directly at relevant parts of the input.
+Attention was introduced to address this.
 
-Instead of depending only on one running compressed state, the model could ask:
+Instead of depending only on the running hidden state, the model gets to look back at every earlier word and decide which ones are relevant right now.
 
-"Which earlier tokens matter most right now?"
+## Example: Attention in Action
 
-## Simple Example
+In the sentence:
 
-In translation, when generating a word in the output sentence, attention can help the model focus on the most relevant source word or phrase.
+"The trophy did not fit in the suitcase because it was too large."
 
-## Why Attention Was So Important
+When the model reaches "it", it needs to decide whether "it" refers to "trophy" or "suitcase."
 
-Attention did not just improve old sequence models.
+With attention, the model can look back at both words and weight them. Because "large" connects more naturally to something that doesn't fit (the trophy, not the container), attention can learn to point "it" toward "trophy."
 
-It pointed toward a new architecture that would become the transformer.
+A model relying only on a compressed hidden state is much more likely to get this wrong.
+
+## Why Attention Mattered Beyond Sequence Models
+
+Attention did not just patch sequence models.
+
+It pointed toward a new idea: what if you removed the step-by-step processing entirely and built an architecture around attention from the start?
 
 That is where the next part begins.
