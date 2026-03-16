@@ -18,7 +18,7 @@ A neural network is a function that maps an input to an output by passing data t
 
 Each node takes in some numbers, multiplies them by weights, adds them up, and passes the result to the next layer.
 
-![A neural network with 4 inputs, 2 hidden layers, and 1 output](../../assets/neural-network.png)
+![A neural network with 4 inputs, 2 hidden layers, and 1 output](assets/neural-network.png)
 
 This network has:
 
@@ -99,7 +99,7 @@ This is what **backpropagation** does.
 
 It works by applying the chain rule from calculus: starting from the loss at the output, it passes the error signal backward through the network layer by layer, computing the gradient for each weight.
 
-![Forward and backward pass through a neural network](../../assets/backpropagation.png)
+![Forward and backward pass through a neural network](assets/backpropagation.png)
 
 - **Forward pass** (blue arrows): the input flows through each layer, and the network produces a prediction.
 - **Backward pass** (red arrows): the error flows backward through each layer, and each weight gets a gradient — a signal telling it how to change.
