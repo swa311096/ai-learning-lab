@@ -19,7 +19,8 @@ start sounding like random jargon instead of answers to earlier problems.
 2. why rule-based systems hit limits
 3. how statistical NLP improved things
 4. why embeddings mattered
-5. how sequence models and attention changed the game
+5. how neural networks learn (gradient descent, backpropagation)
+6. how sequence models and attention changed the game
 
 ## How To Read This Part
 
