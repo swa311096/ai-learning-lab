@@ -20,7 +20,8 @@ start sounding like random jargon instead of answers to earlier problems.
 3. how statistical NLP improved things
 4. why embeddings mattered
 5. how neural networks learn (gradient descent, backpropagation)
-6. how sequence models and attention changed the game
+6. how RNNs and LSTMs processed sequences
+7. how encoder-decoder and attention changed what was possible
 
 ## How To Read This Part
 

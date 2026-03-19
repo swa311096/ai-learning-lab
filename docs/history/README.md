@@ -59,7 +59,8 @@ and understand what those claims are actually pointing at.
 - `01-before-transformers/03-statistical-nlp.md`
 - `01-before-transformers/04-embeddings.md`
 - `01-before-transformers/05-how-models-learn.md`
-- `01-before-transformers/06-sequence-models-and-attention.md`
+- `01-before-transformers/06-rnns-and-lstms.md`
+- `01-before-transformers/07-encoder-decoder-and-attention.md`
 
 
 ### Part 2: Transformers and Scaling
