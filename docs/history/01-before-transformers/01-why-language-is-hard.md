@@ -10,7 +10,7 @@ Both readings are valid. A machine has no way to choose between them without kno
 
 That is the core problem.
 
-## The Core Difficulty
+### The Core Difficulty
 
 Human language carries meaning through:
 
@@ -24,7 +24,7 @@ Human language carries meaning through:
 
 Each one is a separate problem for a machine to solve. Here is what each actually looks like.
 
-## Example: Word Choice
+### Example: Word Choice
 
 The word `bank` can mean a financial institution or the side of a river.
 
@@ -33,7 +33,7 @@ The word `bank` can mean a financial institution or the side of a river.
 
 A machine cannot pick the right meaning without reading the surrounding words.
 
-## Example: Word Order
+### Example: Word Order
 
 These two sentences use the same words:
 
@@ -42,7 +42,7 @@ These two sentences use the same words:
 
 The order changes the meaning entirely. Language understanding is not just about recognizing words. It requires tracking relationships between them.
 
-## Example: Tone
+### Example: Tone
 
 Consider:
 
@@ -50,7 +50,7 @@ Consider:
 
 The word "great" is positive. The meaning is not. A machine that reads words as signals will get this wrong.
 
-## Example: Implied Context
+### Example: Implied Context
 
 Consider:
 
@@ -58,7 +58,7 @@ Consider:
 
 No one is asking about your physical ability. The sentence is a request. But nothing in the words says that. The meaning lives in the social context around the sentence.
 
-## Example: World Knowledge
+### Example: World Knowledge
 
 Consider:
 
@@ -66,7 +66,7 @@ Consider:
 
 The sentence never says she drank it. But you know she did. A machine that only reads the words has no way to fill in that gap without outside knowledge about how people interact with hot liquids.
 
-## Example: Non-Literal Meaning
+### Example: Non-Literal Meaning
 
 Consider:
 
@@ -76,7 +76,7 @@ Depending on who said it and when, this means the movie was poor, or that it was
 
 The words alone do not determine the meaning.
 
-## Example: Exceptions to Every Pattern
+### Example: Exceptions to Every Pattern
 
 English past tense: add "-ed" to the verb.
 
@@ -87,7 +87,7 @@ English past tense: add "-ed" to the verb.
 
 The rule works until it doesn't. There are hundreds of irregular verbs. Any system that encodes "add -ed" will fail on a large portion of real text.
 
-## Why This Chapter Matters
+### Why This Chapter Matters
 
 Each generation of NLP tried to solve a different piece of this problem.
 

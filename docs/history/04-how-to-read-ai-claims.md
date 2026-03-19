@@ -8,13 +8,13 @@ When you see an AI post full of jargon, your job is to translate each phrase int
 2. practical impact
 3. engineering caveats
 
-## Example: "1M-token context window"
+#### Example: "1M-token context window"
 
-### Plain English
+#### Plain English
 
 The model can read a very large amount of text in one request.
 
-### Practical Impact
+#### Practical Impact
 
 This can help with:
 
@@ -22,35 +22,35 @@ This can help with:
 - longer chat histories
 - multi-step workflows with more state in prompt history
 
-### Caveat
+#### Caveat
 
 More visible text does not automatically mean better reasoning or better long-term memory quality.
 
-## Example: "120B parameters with 12B active parameters"
+#### Example: "120B parameters with 12B active parameters"
 
-### Plain English
+#### Plain English
 
 The model is very large overall, but only part of it is used for each input.
 
-### Practical Impact
+#### Practical Impact
 
 This usually points to an MoE-style efficiency design.
 
-### Caveat
+#### Caveat
 
 A spec number does not tell you everything about actual quality, latency, or cost in your use case.
 
-## Example: "3x faster inference"
+#### Example: "3x faster inference"
 
-### Plain English
+#### Plain English
 
 The system claims it can generate outputs much faster.
 
-### Practical Impact
+#### Practical Impact
 
 Lower latency can make apps more responsive and cheaper in some settings.
 
-### Caveat
+#### Caveat
 
 Always ask:
 
@@ -59,17 +59,17 @@ Always ask:
 - at what quality
 - for what prompt length or batch size
 
-## Example: "Agent memory"
+#### Example: "Agent memory"
 
-### Plain English
+#### Plain English
 
 The system can retain information across multiple steps.
 
-### Practical Impact
+#### Practical Impact
 
 This can help with longer workflows.
 
-### Caveat
+#### Caveat
 
 "Memory" can mean several different things:
 
@@ -79,17 +79,17 @@ This can help with longer workflows.
 
 These are not the same thing.
 
-## Example: "Open model"
+#### Example: "Open model"
 
-### Plain English
+#### Plain English
 
 The model is made available more openly than closed commercial APIs.
 
-### Caveat
+#### Caveat
 
 Open does not always mean fully open in the same sense across licenses, weights, data, and commercial rights.
 
-## A Better Reading Habit
+#### A Better Reading Habit
 
 When you see a claim, ask:
 
@@ -99,7 +99,7 @@ When you see a claim, ask:
 4. what tradeoff is hidden behind it
 5. what benchmark or comparison is missing
 
-## What To Remember From This Section
+#### What To Remember From This Section
 
 Your goal is not to memorize buzzwords.
 

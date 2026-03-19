@@ -10,7 +10,7 @@ A single LSTM reading one sequence at a time was not built for this.
 
 ---
 
-## The Encoder-Decoder Architecture
+### The Encoder-Decoder Architecture
 
 The solution was to build two sequence models and connect them.
 
@@ -34,7 +34,7 @@ This worked. For short sentences it produced reasonable translations.
 
 ---
 
-## The Bottleneck Problem
+### The Bottleneck Problem
 
 The architecture had one hard limit: the entire source sentence had to fit into a single fixed-size vector before decoding started.
 
@@ -60,7 +60,7 @@ The longer the sentence, the worse this problem gets.
 
 ---
 
-## Attention: Letting the Decoder Look Back
+### Attention: Letting the Decoder Look Back
 
 Attention was introduced to break the single-vector bottleneck.
 
@@ -118,7 +118,7 @@ The tourist's information does not need to survive 28 steps of hidden state upda
 
 ---
 
-## How Attention Scores Are Computed
+### How Attention Scores Are Computed
 
 The scores are not looked up from a table. They are computed.
 
@@ -136,7 +136,7 @@ The whole thing is differentiable — gradients flow through it during training.
 
 ---
 
-## Example: Attention Beyond Translation
+### Example: Attention Beyond Translation
 
 Attention is not only useful for translation. It solves any problem where the model needs to connect a current position to a relevant earlier position.
 
@@ -165,7 +165,7 @@ Without attention, the model would have to resolve this from its compressed hidd
 
 ---
 
-## Why Attention Mattered Beyond Sequence Models
+### Why Attention Mattered Beyond Sequence Models
 
 Attention was added to fix the encoder-decoder bottleneck. But it revealed something more fundamental.
 

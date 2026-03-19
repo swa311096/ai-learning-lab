@@ -4,7 +4,7 @@ The previous chapter ended with a question: instead of telling the system how la
 
 Statistical NLP was the answer to that question.
 
-## What "Statistical" Actually Means
+### What "Statistical" Actually Means
 
 In statistical NLP, learning from data means counting.
 
@@ -18,7 +18,7 @@ No rules are written by hand. The counts derived from the data become the model.
 
 This was a fundamental change in approach. The system does not need an expert to encode patterns. It needs data.
 
-## How Text Was Represented: Bag of Words
+### How Text Was Represented: Bag of Words
 
 Before the model can count anything, it needs a way to represent text as numbers.
 
@@ -39,7 +39,7 @@ This is the same failure as the rule-based approach, at a different level. The r
 
 Beyond negation, order matters in a broader sense too. "The dog bit the man" and "The man bit the dog" produce nearly identical vectors. The model cannot distinguish them.
 
-## Example: Naive Bayes for Sentiment
+### Example: Naive Bayes for Sentiment
 
 Chapter 02 showed rule-based sentiment detection failing. Statistical NLP gave a better answer to the same problem.
 
@@ -73,7 +73,7 @@ When the words in a sentence are independently strong signals, Naive Bayes works
 
 No rule was written. The data decided what each word means for this task. That was the real advance over rule-based systems. But the representation it operated on — a bag of independent words — was still the ceiling.
 
-## Example: N-Grams for Language Prediction
+### Example: N-Grams for Language Prediction
 
 N-grams are sequences of N consecutive words.
 
@@ -109,14 +109,14 @@ This is the core tension in n-gram models: larger N = more context but less data
 
 And no matter what N you choose, the model only looks at the last N-1 words. Everything before that is invisible. A sentence that depends on a word from 20 words ago is completely outside the window.
 
-## What Statistical NLP Could Do
+### What Statistical NLP Could Do
 
 - text classification: sentiment, spam detection, topic labeling
 - language modeling over short sequences
 - part-of-speech tagging and named entity recognition
 - components of early machine translation
 
-## What It Could Not Do
+### What It Could Not Do
 
 The two approaches had different limitations.
 
@@ -138,7 +138,7 @@ By the time the model reaches the blank, "cat" is 15 words back — far outside 
 
 The larger the gap between two related words, the less the model could use that relationship.
 
-## What This Proved
+### What This Proved
 
 Statistical NLP demonstrated that language systems improve when they learn from data rather than depending on rules written by hand.
 
@@ -146,7 +146,7 @@ That was a shift in the foundation of the field.
 
 The limitation it left open: counting words — even with probabilities — does not capture what words mean or how meaning shifts with context.
 
-## What Came Next
+### What Came Next
 
 The next question was about representation.
 

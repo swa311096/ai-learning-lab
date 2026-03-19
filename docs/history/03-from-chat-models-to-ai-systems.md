@@ -6,17 +6,17 @@ The short version:
 
 the field moved from "can a model generate good text?" to "how do we make systems around the model useful, reliable, and controllable?"
 
-## Stage 1: Instruction Tuning
+#### Stage 1: Instruction Tuning
 
-### The Problem
+#### The Problem
 
 A pretrained model can generate fluent text, but that does not mean it behaves like a helpful assistant.
 
-### The Shift
+#### The Shift
 
 Instruction tuning trains the model on examples of user requests and desired responses.
 
-### Why It Mattered
+#### Why It Mattered
 
 This made models much better at following requests like:
 
@@ -25,7 +25,7 @@ This made models much better at following requests like:
 - answer in bullet points
 - return JSON
 
-### Simple Example
+#### Simple Example
 
 A plain pretrained model might continue a piece of text in a generic way.
 
@@ -35,13 +35,13 @@ An instruction-tuned model is more likely to interpret:
 
 as a real task with a useful output format.
 
-## Stage 2: Alignment and RLHF
+#### Stage 2: Alignment and RLHF
 
-### The Problem
+#### The Problem
 
 Even instruction-tuned models can still be unhelpful, unsafe, or badly aligned with human preferences.
 
-### The Shift
+#### The Shift
 
 One major approach was RLHF:
 
@@ -49,7 +49,7 @@ Reinforcement Learning from Human Feedback.
 
 The system uses human preference signals to push the model toward more helpful behavior.
 
-### Why It Mattered
+#### Why It Mattered
 
 This improved:
 
@@ -58,19 +58,19 @@ This improved:
 - safety behavior
 - conversational usability
 
-### Important Caveat
+#### Important Caveat
 
 Alignment does not make the model automatically factual.
 
 It can still sound confident and still be wrong.
 
-## Stage 3: RAG
+#### Stage 3: RAG
 
-### The Problem
+#### The Problem
 
 Models are not reliable long-term knowledge stores, especially for fresh, private, or domain-specific information.
 
-### The Shift
+#### The Shift
 
 Systems started retrieving relevant information from outside the model and giving that information to the model before asking for an answer.
 
@@ -78,7 +78,7 @@ This is RAG:
 
 Retrieval-Augmented Generation.
 
-### Why It Mattered
+#### Why It Mattered
 
 RAG helps with:
 
@@ -87,7 +87,7 @@ RAG helps with:
 - traceable sources
 - reduced hallucination risk
 
-### Simple Example
+#### Simple Example
 
 Instead of asking the model:
 
@@ -95,13 +95,13 @@ Instead of asking the model:
 
 you first retrieve the actual policy document and then ask the model to answer using that text.
 
-## Stage 4: Tool Calling
+#### Stage 4: Tool Calling
 
-### The Problem
+#### The Problem
 
 A model can describe actions, but that is not the same as actually doing them.
 
-### The Shift
+#### The Shift
 
 Tool calling lets the model request that the surrounding system run a real function.
 
@@ -112,11 +112,11 @@ Examples:
 - read a file
 - create a calendar event
 
-### Why It Mattered
+#### Why It Mattered
 
 This turned AI systems from pure text generators into action-capable software.
 
-### Simple Example
+#### Simple Example
 
 If the user asks:
 
@@ -124,13 +124,13 @@ If the user asks:
 
 the model can call a weather tool instead of hallucinating a weather answer.
 
-## Stage 5: Agents
+#### Stage 5: Agents
 
-### The Problem
+#### The Problem
 
 Some tasks need multiple steps, not one answer.
 
-### The Shift
+#### The Shift
 
 Agentic systems let the model decide what to do next across several steps:
 
@@ -140,48 +140,48 @@ Agentic systems let the model decide what to do next across several steps:
 - inspect results
 - continue or stop
 
-### Why It Mattered
+#### Why It Mattered
 
 This opened up more complex tasks such as research, debugging, and workflow automation.
 
-### Important Caveat
+#### Important Caveat
 
 Agents are often overused.
 
 Many tasks are better as normal workflows with fixed steps.
 
-## Stage 6: MCP and Standardized Integrations
+#### Stage 6: MCP and Standardized Integrations
 
-### The Problem
+#### The Problem
 
 As tools grew, many integrations were custom and inconsistent.
 
-### The Shift
+#### The Shift
 
 Protocols such as MCP provide a more standardized way for models, tools, and resources to connect.
 
-### Why It Mattered
+#### Why It Mattered
 
 This reduces one-off glue code and makes integrations more portable.
 
-## Stage 7: Evals and Reliability
+#### Stage 7: Evals and Reliability
 
-### The Problem
+#### The Problem
 
 A few impressive outputs can hide a fragile system.
 
-### The Shift
+#### The Shift
 
 Teams started treating evals, guardrails, and observability as core parts of AI system design.
 
-### Why It Mattered
+#### Why It Mattered
 
 This is the difference between:
 
 - a cool demo
 - a system you can trust and improve
 
-## What To Remember From This Section
+#### What To Remember From This Section
 
 - instruction tuning made models more usable
 - alignment improved assistant behavior

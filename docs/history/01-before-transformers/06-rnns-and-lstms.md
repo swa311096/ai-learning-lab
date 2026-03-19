@@ -16,7 +16,7 @@ That is what RNNs were built to do.
 
 ---
 
-## Why RNNs Came
+### Why RNNs Came
 
 Before RNNs, the best available approaches were:
 
@@ -29,7 +29,7 @@ The insight behind RNNs: process the sentence one word at a time. At each step, 
 
 ---
 
-## What "Recurrent" Means
+### What "Recurrent" Means
 
 Sequence models are called **recurrent** because they loop — the output of one step feeds back as input to the next.
 
@@ -65,7 +65,7 @@ Each step updates the hidden state. Step 3 cannot run until step 2 is done.
 
 ---
 
-## What RNNs Solved
+### What RNNs Solved
 
 **Negation in sentiment:**
 
@@ -97,7 +97,7 @@ N-grams with N=3 use only the last 2 words as context. An RNN at any step has a 
 
 ---
 
-## What RNNs Could Not Do
+### What RNNs Could Not Do
 
 Two problems limited RNNs.
 
@@ -117,7 +117,7 @@ Training requires backpropagating through every step of the sequence. As covered
 
 ---
 
-## LSTMs: Solving the Forgetting Problem
+### LSTMs: Solving the Forgetting Problem
 
 Take the tourist sentence that broke the RNN. With a basic RNN, by the time the model reaches "___", "tourist" has largely faded from the hidden state.
 
@@ -168,7 +168,7 @@ A basic RNN at this point would have a hidden state dominated by "hotel", "had b
 
 ---
 
-## How Does the Gate Know What to Keep?
+### How Does the Gate Know What to Keep?
 
 The table above says "erase Spain, keep tourist" — but who decided that? No one programmed that rule. Here is how it actually works, using the tourist sentence step by step.
 
@@ -246,7 +246,7 @@ LSTMs and GRUs became the standard for sequence tasks through the 2010s.
 
 ---
 
-## What Came Next
+### What Came Next
 
 LSTMs solved the forgetting problem within a single sequence. A model could now read a sentence and retain what mattered across its full length.
 

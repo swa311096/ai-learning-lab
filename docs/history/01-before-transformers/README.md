@@ -13,7 +13,7 @@ If you skip this part, modern terms like:
 
 start sounding like random jargon instead of answers to earlier problems.
 
-## What This Part Covers
+### What This Part Covers
 
 1. why language is hard for machines
 2. why rule-based systems hit limits
@@ -23,7 +23,7 @@ start sounding like random jargon instead of answers to earlier problems.
 6. how RNNs and LSTMs processed sequences
 7. how encoder-decoder and attention changed what was possible
 
-## How To Read This Part
+### How To Read This Part
 
 Read slowly and ask:
 

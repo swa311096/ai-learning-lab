@@ -11,7 +11,7 @@ The goal is to understand:
 - why that change mattered
 - which modern concepts came out of it
 
-## Teaching Standard
+#### Teaching Standard
 
 This section should be written as if someone is learning the topic for the first time.
 
@@ -26,7 +26,7 @@ That means each chapter should explain:
 
 If a chapter reads like a list of terms, it is not finished yet.
 
-## How To Read This Section
+#### How To Read This Section
 
 Read these parts in order:
 
@@ -37,7 +37,7 @@ Read these parts in order:
 
 The first part is now broken into smaller chapters because it contains many foundational concepts that are easy to gloss over too quickly.
 
-## What You Should Get Out Of This
+#### What You Should Get Out Of This
 
 By the end of this section, you should be able to read phrases like:
 
@@ -49,9 +49,9 @@ By the end of this section, you should be able to read phrases like:
 
 and understand what those claims are actually pointing at.
 
-## Current Structure
+#### Current Structure
 
-### Part 1: Before Transformers
+#### Part 1: Before Transformers
 
 - `01-before-transformers/README.md`
 - `01-before-transformers/01-why-language-is-hard.md`
@@ -63,14 +63,14 @@ and understand what those claims are actually pointing at.
 - `01-before-transformers/07-encoder-decoder-and-attention.md`
 
 
-### Part 2: Transformers and Scaling
+#### Part 2: Transformers and Scaling
 
 - `02-transformers-and-scaling.md`
 
-### Part 3: From Chat Models to AI Systems
+#### Part 3: From Chat Models to AI Systems
 
 - `03-from-chat-models-to-ai-systems.md`
 
-### Part 4: How To Read AI Claims
+#### Part 4: How To Read AI Claims
 
 - `04-how-to-read-ai-claims.md`

@@ -11,7 +11,7 @@ Both problems came down to the same root: the model had no representation of wha
 
 Embeddings were built to solve that.
 
-## What Came Before: One-Hot Encoding
+### What Came Before: One-Hot Encoding
 
 Before embeddings, words were represented as one-hot vectors.
 
@@ -28,7 +28,7 @@ Each vector is mostly zeros with a single 1. This is called **sparse** — most 
 
 There is no relationship between any two vectors. "Dog" at position 4,821 and "puppy" at position 7,234 share nothing mathematically. The model has no way to know they are related.
 
-## What an Embedding Is
+### What an Embedding Is
 
 An embedding replaces the sparse one-hot vector with a **dense** vector — a shorter list where every position has a number, not mostly zeros.
 
@@ -63,7 +63,7 @@ After training, the numbers look like this:
 
 Cat, dog, and puppy ended up with similar numbers. Democracy did not. The relationship between words is now visible in the representation itself.
 
-## What a Dimension Is
+### What a Dimension Is
 
 Each position in that vector is called a **dimension**.
 
@@ -78,7 +78,7 @@ Each dimension in an embedding captures some abstract pattern the model found us
 
 What the 300 numbers say together: "here is where this word sits in a 300-axis space shaped by how it is used in text."
 
-## The Core Idea: Distributional Hypothesis
+### The Core Idea: Distributional Hypothesis
 
 So how does training know where to place each word?
 
@@ -100,7 +100,7 @@ That overlap is the training signal. Words with overlapping contexts get pulled 
 
 The vector is no longer an arbitrary index. It is a position shaped by the word's actual usage in language.
 
-## How Embeddings Are Trained: Word2Vec
+### How Embeddings Are Trained: Word2Vec
 
 Word2Vec (2013) was the technique that showed this could be done efficiently at scale.
 
@@ -114,7 +114,7 @@ For the sentence "The dog chased the ball down the street":
 
 The model starts with random vectors and adjusts them every time it makes a prediction. No labels are needed. The structure of language itself is the training signal.
 
-## Example: What the Space Shows
+### Example: What the Space Shows
 
 After training on a large corpus, the vector space has structure.
 
@@ -133,7 +133,7 @@ The space also supports arithmetic. Because the relationship between word pairs 
 
 The model never learned these rules. They fell out of the patterns in the data.
 
-## How Similarity Is Measured
+### How Similarity Is Measured
 
 Closeness in this space is measured by the angle between two vectors — called **cosine similarity**.
 
@@ -141,7 +141,7 @@ Two vectors pointing in nearly the same direction are considered similar. Two ve
 
 This is why the individual numbers in a vector do not mean anything on their own. What matters is the angle between two word vectors, not the value at any single position.
 
-## What This Improved Over Statistical NLP
+### What This Improved Over Statistical NLP
 
 With Bag of Words, a model trained on sentences about dogs had no information about puppies — they were different symbols.
 
@@ -149,7 +149,7 @@ With embeddings, "dog" and "puppy" have similar vectors. A model can generalize 
 
 This was not possible with word counts.
 
-## The Limitation: One Vector Per Word
+### The Limitation: One Vector Per Word
 
 Classic embeddings assign one fixed vector to each word, regardless of context.
 
@@ -165,6 +165,6 @@ Embeddings improved representation of meaning across words, but they could not r
 
 That problem is called context-sensitivity. Solving it required models that process the full sequence — computing a word's representation based on the words around it in each specific sentence.
 
-## What Came Next
+### What Came Next
 
 Sequence models were built to process words in order, carrying context forward as they read. That gave each word's representation a chance to be shaped by what came before it.

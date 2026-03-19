@@ -4,7 +4,7 @@ If humans understand language through patterns, why not just write those pattern
 
 That was the first serious attempt.
 
-## What A Rule-Based System Looks Like
+### What A Rule-Based System Looks Like
 
 A developer writes explicit logic:
 
@@ -14,7 +14,7 @@ A developer writes explicit logic:
 
 The system has no ability to learn. It can only do what the rules tell it.
 
-## Why This Made Sense
+### Why This Made Sense
 
 Language does have structure. Sentences follow grammar. Words carry consistent meanings in specific domains.
 
@@ -24,7 +24,7 @@ The problem is not that rule-based systems never worked. The problem is that the
 
 Two examples show this clearly. The first shows a rule-based system that appeared to work — within a narrow range. The second shows what happened when the same approach was applied to a task with more variation.
 
-## Example: ELIZA
+### Example: ELIZA
 
 ELIZA was a rule-based program built in the 1960s to simulate a conversation.
 
@@ -48,7 +48,7 @@ ELIZA was not intelligent. It was a set of templates that looked intelligent und
 
 ELIZA was a conversation system. But the same approach — match a surface pattern, fire a rule — was applied to other types of language tasks too. The result was the same.
 
-## Example: Sentiment Detection
+### Example: Sentiment Detection
 
 Sentiment detection is the task of reading a piece of text and deciding whether it expresses a positive or negative opinion.
 
@@ -76,7 +76,7 @@ Every new case requires a new rule. Every new rule risks conflicting with an exi
 
 The problem was not the volume of reviews. The problem was the variation in how people write. No finite set of rules could cover it.
 
-## What Rule-Based Systems Could Do
+### What Rule-Based Systems Could Do
 
 In narrow, controlled domains:
 
@@ -85,7 +85,7 @@ In narrow, controlled domains:
 - keyword-based routing and classification
 - parsing in domains with limited vocabulary
 
-## What They Could Not Do
+### What They Could Not Do
 
 Anything that required handling variation, context, or language outside the cases the rules were designed for.
 
@@ -95,7 +95,7 @@ This created three compounding problems:
 2. rules conflict with one another
 3. performance breaks as soon as input deviates from what was anticipated
 
-## What This Taught the Field
+### What This Taught the Field
 
 Writing rules by hand does not scale.
 
@@ -103,7 +103,7 @@ Language is too varied. Edge cases are not exceptions — they are the norm. Eve
 
 The lesson was not that language is too hard to process. The lesson was that the approach of encoding rules manually was the wrong foundation.
 
-## What Came Next
+### What Came Next
 
 This pushed researchers toward a different question:
 

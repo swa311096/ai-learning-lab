@@ -12,7 +12,7 @@ These are not optional background. Every model from this point forward — RNNs,
 
 ---
 
-## What a Neural Network Is
+### What a Neural Network Is
 
 A neural network is a function that maps an input to an output by passing data through layers of connected nodes.
 
@@ -43,7 +43,7 @@ Learning is the process of adjusting those weights so the predictions get better
 
 ---
 
-## What Gradient Descent Is
+### What Gradient Descent Is
 
 To improve the weights, the model needs two things:
 
@@ -142,7 +142,7 @@ Choosing the learning rate is one of the most practical challenges in training. 
 
 ---
 
-## What Backpropagation Is
+### What Backpropagation Is
 
 The network has many layers and thousands of weights. After computing the loss, the model needs to figure out: which weights were responsible for the error, and by how much?
 
@@ -254,7 +254,7 @@ In a network with 10 layers, the gradient for a weight in layer 1 is computed by
 
 ---
 
-## Why This Matters for Everything That Follows
+### Why This Matters for Everything That Follows
 
 Every model from here forward — RNNs, LSTMs, transformers, language models — learns using this same loop:
 
