@@ -52,13 +52,37 @@ To improve the weights, the model needs two things:
 
 **Measuring how wrong: the loss function**
 
-After making a prediction, the model compares it to the correct answer. The gap between prediction and correct answer is the **loss**.
+After making a prediction, the model compares it to the correct answer. The difference is the **loss**. The goal of training is to reduce loss across the entire dataset.
 
-- predicted: 0.2 (slightly negative)
-- correct: 1.0 (strongly positive)
-- loss: large
+Two loss functions appear constantly in NLP:
 
-The goal of training is to reduce loss across the entire dataset.
+**Mean Squared Error (MSE)** — used when the output is a continuous number (like a rating).
+
+```
+Actual rating:    5
+Predicted rating: 3
+Error:            (3 − 5)² = 4
+
+Actual rating:    4
+Predicted rating: 4.5
+Error:            (4.5 − 4)² = 0.25
+
+MSE = average of all errors = (4 + 0.25) / 2 = 2.125
+```
+
+**Cross-Entropy Loss** — used for classification (like sentiment detection). It measures how confident the model was about the correct answer.
+
+```
+Correct label: positive
+
+Model predicted 0.85 probability of positive:
+  Loss = −log(0.85) = 0.16   ← low loss, confident and correct
+
+Model predicted 0.20 probability of positive:
+  Loss = −log(0.20) = 1.61   ← high loss, unconfident and wrong
+```
+
+Cross-entropy punishes the model not just for being wrong, but for being wrong confidently. A model that says "80% negative" when the answer is positive gets a much higher penalty than one that says "45% negative."
 
 **Adjusting the weights: gradient descent**
 
@@ -79,15 +103,42 @@ Loss
   +-------------------------> Weight value
 ```
 
-At any point on that curve, the **gradient** tells you which direction the curve slopes upward. Moving in the opposite direction — downhill — reduces the loss.
+At any point on that curve, the **gradient** tells you the slope — which direction is uphill. Moving in the opposite direction moves the weight downhill and reduces loss.
 
-The model makes a small adjustment to each weight in the downhill direction. Then it checks again. Then adjusts again. Over thousands of steps, the weights converge toward values that produce low loss.
+The update rule for every weight is:
 
-This is **gradient descent**: repeatedly adjust weights in the direction that reduces loss.
+```
+new_weight = old_weight − (learning_rate × gradient)
+```
+
+A concrete example with one weight:
+
+```
+weight = 0.80
+gradient at that point = 0.30  (loss increases as weight increases → move it down)
+learning rate = 0.10
+
+step 1:  w = 0.80 − (0.10 × 0.30) = 0.80 − 0.03 = 0.77
+step 2:  w = 0.77 − (0.10 × 0.24) = 0.77 − 0.024 = 0.746
+step 3:  w = 0.746 − (0.10 × 0.19) = 0.746 − 0.019 = 0.727
+...
+```
+
+Each step the gradient gets smaller because the weight is getting closer to the minimum. The steps shrink automatically as the model improves.
+
+A real network has thousands to billions of weights. This same calculation runs for every single one of them after every training example.
 
 **Learning rate**
 
-Each step has a size — called the **learning rate**. Too large: the model overshoots the minimum and bounces around. Too small: training takes too long. Choosing the learning rate is one of the practical challenges of training neural networks.
+The size of each step is the **learning rate**.
+
+```
+Too large:  w = 0.80 − (1.0 × 0.30) = 0.50  → overshoots, bounces past minimum
+Too small:  w = 0.80 − (0.001 × 0.30) = 0.7997  → barely moves, training takes forever
+Just right: w = 0.80 − (0.10 × 0.30) = 0.77   → makes meaningful progress
+```
+
+Choosing the learning rate is one of the most practical challenges in training. Most modern systems use adaptive methods that adjust the learning rate automatically per weight.
 
 ---
 
@@ -97,16 +148,109 @@ The network has many layers and thousands of weights. After computing the loss, 
 
 This is what **backpropagation** does.
 
-It works by applying the chain rule from calculus: starting from the loss at the output, it passes the error signal backward through the network layer by layer, computing the gradient for each weight.
+**Why this is not obvious**
+
+Gradient descent needs the gradient for every weight. But a weight in layer 1 does not directly produce the output — it affects a hidden layer, which affects the next layer, which eventually affects the output. You cannot compute its gradient without tracing the full path.
+
+This is where the **chain rule** comes in. If A affects B and B affects C, then the effect of A on C is:
+
+```
+∂C/∂A = (∂C/∂B) × (∂B/∂A)
+```
+
+Read as: "how does C change with A" = "how does C change with B" × "how does B change with A."
+
+Backpropagation applies this chain rule from the output back through every layer to compute the gradient for every weight.
+
+**A concrete example**
+
+Network: one input → one hidden node → one output. Two weights: w1 and w2.
+
+```
+x = 2.0          (input)
+w1 = 0.5         (weight: input → hidden)
+w2 = 0.3         (weight: hidden → output)
+target = 1.0     (correct answer)
+learning rate = 0.1
+```
+
+**Step 1 — Forward pass:**
+
+```
+hidden = x × w1       = 2.0 × 0.5    = 1.0
+output = hidden × w2  = 1.0 × 0.3    = 0.3
+
+loss = (output − target)²
+     = (0.3 − 1.0)²
+     = (−0.7)²
+     = 0.49
+```
+
+The model predicted 0.3 but the correct answer was 1.0. Loss is 0.49.
+
+**Step 2 — Backward pass (chain rule):**
+
+Start from the loss and work backward.
+
+*Gradient of loss with respect to output:*
+```
+∂Loss/∂output = 2 × (output − target)
+              = 2 × (0.3 − 1.0)
+              = −1.4
+```
+The −1.4 means: increasing the output reduces the loss. The output needs to go up.
+
+*Gradient for w2 (one step from output):*
+```
+∂output/∂w2 = hidden = 1.0
+
+∂Loss/∂w2 = (∂Loss/∂output) × (∂output/∂w2)
+           = −1.4 × 1.0
+           = −1.4
+```
+
+*Gradient for w1 (two steps from output — chain rule through both layers):*
+```
+∂output/∂hidden = w2 = 0.3
+∂hidden/∂w1     = x  = 2.0
+
+∂Loss/∂w1 = (∂Loss/∂output) × (∂output/∂hidden) × (∂hidden/∂w1)
+           = −1.4 × 0.3 × 2.0
+           = −0.84
+```
+
+**Step 3 — Update both weights:**
+
+```
+w2_new = w2 − (lr × ∂Loss/∂w2) = 0.30 − (0.1 × −1.4) = 0.30 + 0.14 = 0.44
+w1_new = w1 − (lr × ∂Loss/∂w1) = 0.50 − (0.1 × −0.84) = 0.50 + 0.084 = 0.584
+```
+
+Both weights increased because the output needed to go up (gradient was negative → step moved weights upward).
+
+**Verify: did the loss go down?**
+
+```
+hidden = 2.0 × 0.584   = 1.168
+output = 1.168 × 0.44  = 0.514
+
+loss = (0.514 − 1.0)²  = 0.236
+```
+
+Before: loss = 0.49. After one step: loss = 0.236. The model is now closer to the correct answer.
+
+---
 
 ![Forward and backward pass through a neural network](assets/backpropagation.png)
 
-- **Forward pass** (blue arrows): the input flows through each layer, and the network produces a prediction.
-- **Backward pass** (red arrows): the error flows backward through each layer, and each weight gets a gradient — a signal telling it how to change.
+- **Forward pass** (blue): input flows through layers → prediction
+- **Backward pass** (red): error flows backward → gradient for every weight
 
-Once every weight has a gradient, gradient descent takes one step.
+Once every weight has its gradient, gradient descent takes one step. Then the cycle repeats.
 
-This cycle — forward pass, compute loss, backward pass, update weights — repeats for every training example. Over millions of examples, the weights settle into values that make the model accurate.
+**What happens in deeper networks**
+
+In a network with 10 layers, the gradient for a weight in layer 1 is computed by multiplying through 10 chain rule steps. Each multiplication can shrink the gradient — weights far from the output receive very small gradients and barely update. This is the **vanishing gradient problem**, which becomes critical in sequence models processing long input.
 
 ---
 

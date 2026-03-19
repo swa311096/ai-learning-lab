@@ -1,6 +1,6 @@
 # Why I Started AI Learning Lab
 
-I wanted one place where AI concepts and working code live together.
+I wanted one place where AI concepts and working code live together. 
 
 Most AI learning online is fragmented. You read about prompts in one place, RAG somewhere else, agents in another thread, and evals almost as an afterthought.
 
